@@ -1,6 +1,16 @@
 const core = require("@actions/core");
 const axios = require("axios");
 
+function getNetlifyUrl(url) {
+  return axios.get({
+    url,
+    method: 'get',
+    headers: {
+      Authorization: `Bearer ${process.env.NETLIFY_TOKEN}`
+    }
+  })
+}
+
 const waitForUrl = async (url, MAX_TIMEOUT) => {
   const iterations = MAX_TIMEOUT / 3;
   for (let i = 0; i < iterations; i++) {
@@ -31,14 +41,14 @@ const run = async () => {
       core.setFailed("Required field `site_name` was not provided");
     }
 
-    const { data: netlifySites } = await axios.get(`https://api.netlify.com/api/v1/sites?name=${siteName}`)
+    const { data: netlifySites } = await getNetlifyUrl(`https://api.netlify.com/api/v1/sites?name=${siteName}`)
     if (!netlifySites || netlifySites.length === 0) {
       core.setFailed(`Could not find Netlify site with the name ${siteName}`)
     }
     const { site_id } = netlifySites[0];
     core.setOutput("site_id", site_id);
 
-    const { data: netlifyDeployments } = await axios.get(`https://api.netlify.com/api/v1/sites/${site_id}/deploys`)
+    const { data: netlifyDeployments } = await getNetlifyUrl(`https://api.netlify.com/api/v1/sites/${site_id}/deploys`)
 
     if (!netlifyDeployments) {
       core.setFailed(`Failed to get deployments for site`);
