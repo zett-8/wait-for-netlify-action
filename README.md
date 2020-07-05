@@ -1,5 +1,7 @@
 # Wait for Netlify Deploy — A GitHub Action ⏱
 
+> **NOTE: This doesn't work yet.**
+
 Do you have other Github actions (Lighthouse, Cypress, etc) that depend on the Netlify Preview URL? This action will wait until the preview URL is available before running the next task.
 
 This is a fork of [JosephDuffy/wait-for-netlify-action](https://github.com/JosephDuffy/wait-for-netlify-action) that uses the deployment for the commit, rather than for the PR. This fork fixes a couple issues retrieving the GitHub SHA being built, the deployment commit URL, and `max_timeout` setting.
