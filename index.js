@@ -17,16 +17,49 @@ const waitForUrl = async (url, MAX_TIMEOUT) => {
 
 const run = async () => {
   try {
-    const commit = process.env.GITHUB_SHA;
+    const netlifyToken = process.env.NETLIFY_TOKEN;
+    const commitSha = process.env.GITHUB_SHA;
     const MAX_TIMEOUT = Number(core.getInput("max_timeout")) || 60;
     const siteName = core.getInput("site_name");
-    if (!commit) {
+    if (!netlifyToken) {
+      core.setFailed("Please set NETLIFY_TOKEN env variable to your Netlify Personal Access Token secret");
+    }
+    if (!commitSha) {
       core.setFailed("Could not determine GitHub commit");
     }
     if (!siteName) {
       core.setFailed("Required field `site_name` was not provided");
     }
-    const url = `https://${commit}--${siteName}.netlify.app`;
+
+    const { data: netlifySites } = await axios.get(`https://api.netlify.com/api/v1/sites?name=${siteName}`)
+    if (!netlifySites || netlifySites.length === 0) {
+      core.setFailed(`Could not find Netlify site with the name ${siteName}`)
+    }
+    const { site_id } = netlifySites[0];
+    core.setOutput("site_id", site_id);
+
+    const { data: netlifyDeployments } = await axios.get(`https://api.netlify.com/api/v1/sites/${site_id}/deploys`)
+
+    if (!netlifyDeployments) {
+      core.setFailed(`Failed to get deployments for site`);
+    }
+
+    // Most likely, it's the first entry in the response
+    // but we correlate it just to be safe
+    const commitDeployment = netlifyDeployments.find(d => d.commit_ref === commitSha && d.context === "deploy-preview");
+    if (!commitDeployment) {
+      core.setFailed(`Could not find deployment for commit ${commitSha}`);
+    }
+    core.setOutput("deploy_id", commitDeployment.id);
+
+    // At this point, we have enough info to where
+    // we could wait for the deployment state === "ready"
+    // but it's probably more reliable to wait for the URL
+    // to be available.
+    //
+    // This could be enhanced to wait for the deployment status
+    // and then wait once again for the URL to return 200.
+    const url = `https://${commitDeployment.build_id}--${siteName}.netlify.app`;
     core.setOutput("url", url);
     console.log(`Waiting for a 200 from: ${url}`);
     await waitForUrl(url, MAX_TIMEOUT);

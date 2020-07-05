@@ -1,8 +1,16 @@
 # Wait for Netlify Deploy — A GitHub Action ⏱
 
-Do you have other Github actions (Lighthouse, Cypress, etc) that depend on the Netlify Preview URL? This action will wait until the url is available before running the next task.
+Do you have other Github actions (Lighthouse, Cypress, etc) that depend on the Netlify Preview URL? This action will wait until the preview URL is available before running the next task.
 
-This is a fork of [JosephDuffy/wait-for-netlify-action](https://github.com/JosephDuffy/wait-for-netlify-action) that uses the deployment for the commit, rather than for the PR. This fixes a couple issues retrieving the GitHub SHA being built and `max_timeout` setting.
+This is a fork of [JosephDuffy/wait-for-netlify-action](https://github.com/JosephDuffy/wait-for-netlify-action) that uses the deployment for the commit, rather than for the PR. This fork fixes a couple issues retrieving the GitHub SHA being built, the deployment commit URL, and `max_timeout` setting.
+
+This action uses the Netlify API to always retrieve the correct deployment being built. You will need to generate a [Personal Access Token](https://app.netlify.com/user/applications/personal) to use and pass it as the `NETLIFY_TOKEN` environment variable.
+
+## Env
+
+### `NETLIFY_TOKEN`
+
+**Required.** Your Netlify [Personal Access Token](https://app.netlify.com/user/applications/personal) to use for API access. This should be set as a GitHub secret, see example.
 
 ## Inputs
 
@@ -18,7 +26,15 @@ Optional — The amount of time to spend waiting on Netlify. Defaults to `60` se
 
 ### `url`
 
-The netlify deploy preview url that was deployed.
+The Netlify deploy preview url that was deployed.
+
+### `site_id`
+
+The Netlify site ID that was deployed.
+
+### `deploy_id`
+
+The Netlify deployment ID that was deployed.
 
 ## Example usage
 
@@ -27,11 +43,13 @@ Basic Usage
 ```yaml
 steps:
   - name: Waiting for Netlify Preview
-    uses: kamranayub/wait-for-netlify-action@v1
+    uses: kamranayub/wait-for-netlify-action@1.1.0
     id: wait-for-netflify-preview
     with:
       site_name: "YOUR_SITE_NAME"
       max_timeout: 60
+    env:
+      NETLIFY_TOKEN: ${{secrets.NETLIFY_TOKEN}}
 ```
 
 <details>
@@ -60,10 +78,12 @@ jobs:
         run: |
           npm run build
       - name: Waiting for 200 from the Netlify Preview
-        uses: kamranayub/wait-for-netlify-action@v1
+        uses: kamranayub/wait-for-netlify-action@1.1.0
         id: wait-for-netflify-preview
         with:
           site_name: "YOUR_SITE_NAME"
+        env:
+          NETLIFY_TOKEN: ${{secrets.NETLIFY_TOKEN}}
       - name: Lighthouse CI
         run: |
           npm install -g @lhci/cli@0.3.x
