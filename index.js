@@ -1,4 +1,5 @@
 const core = require("@actions/core");
+const github = require("@actions/github");
 const axios = require("axios");
 
 function getNetlifyUrl(url) {
@@ -26,7 +27,7 @@ const waitForUrl = async (url, MAX_TIMEOUT) => {
 const run = async () => {
   try {
     const netlifyToken = process.env.NETLIFY_TOKEN;
-    const commitSha = process.env.GITHUB_SHA;
+    const commitSha = github.context.sha;
     const MAX_TIMEOUT = Number(core.getInput("max_timeout")) || 60;
     const siteName = core.getInput("site_name");
     if (!netlifyToken) {
