@@ -6,11 +6,15 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["github-action", "github", "netlify"],
+  "keywords": [
+    "github-action",
+    "github",
+    "netlify"
+  ],
   "author": "Kamran Ayub",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^1.2.4",
-    "axios": "^0.19.0"
+    "@actions/core": "1.2.4",
+    "axios": "0.19.2"
   }
 }
