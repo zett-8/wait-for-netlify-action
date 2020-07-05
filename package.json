@@ -1,17 +1,16 @@
 {
   "name": "wait-for-netlify-action",
   "version": "1.0.0",
-  "description": "",
+  "description": "A GitHub action that waits for a Netlify deployment preview for the current commit being built",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["github-action", "github", "netlify"],
+  "author": "Kamran Ayub",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^1.2.0",
-    "@actions/github": "^2.0.0",
+    "@actions/core": "^1.2.4",
     "axios": "^0.19.0"
   }
 }
