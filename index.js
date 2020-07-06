@@ -72,7 +72,7 @@ const run = async () => {
     //
     // This could be enhanced to wait for the deployment status
     // and then wait once again for the URL to return 200.
-    const url = `https://${commitDeployment.build_id}--${siteName}.netlify.app`;
+    const url = `https://${commitDeployment.id}--${siteName}.netlify.app`;
     core.setOutput("url", url);
     console.log(`Waiting for a 200 from: ${url}`);
     await waitForUrl(url, MAX_TIMEOUT);
