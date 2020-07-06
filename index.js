@@ -27,7 +27,11 @@ const waitForUrl = async (url, MAX_TIMEOUT) => {
 const run = async () => {
   try {
     const netlifyToken = process.env.NETLIFY_TOKEN;
-    const commitSha = github.context.sha;
+    // In a PR, github.contex.sha refers to the last merge commit SHA
+    // not the *latest commit* of the PR which is what Netlify uses. Instead,
+    // have to use github.context.event.pull_request.head.sha
+    // See: https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads#pull_request
+    const commitSha = github.context.event.pull_request.head.sha;
     const MAX_TIMEOUT = Number(core.getInput("max_timeout")) || 60;
     const siteName = core.getInput("site_name");
     if (!netlifyToken) {
