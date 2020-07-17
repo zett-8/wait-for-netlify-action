@@ -1,18 +1,20 @@
-name: "Wait for Netlify Deploy Commit"
-description: "Wait for Netlify Deploy to complete for commit"
+name: "Wait for Netlify Deployment"
+description: "Waits for the current GitHub commit Netlify deploy to be ready. Useful in combination with tools like Lighthouse or Cypress."
 branding:
   icon: "clock"
   color: "blue"
 inputs:
   site_id:
-    description: "The Netlify site id to test against"
+    description: "The Netlify site ID to test against, get this from the Netlify UI under site settings."
     required: true
   max_timeout:
-    description: "The max time to wait after the deployment is ready for a valid HTTP status code"
+    description: "The max time to wait after the deployment is ready for a valid HTTP status code."
     required: false
 outputs:
+  deploy_id:
+    description: "The Netlify deployment ID"
   url:
-    description: "The fully qualified deploy URL"
+    description: "The fully qualified deployment URL"
 runs:
   using: "node12"
   main: "index.js"

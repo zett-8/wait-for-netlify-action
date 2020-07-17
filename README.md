@@ -1,8 +1,6 @@
-# Wait for Netlify Deploy — A GitHub Action ⏱
+# Wait for Netlify Deployment
 
-Do you have other Github actions (Lighthouse, Cypress, etc) that depend on the Netlify Preview URL? This action will wait until the preview URL is available before running the next task.
-
-This is a fork of [kamranayub/wait-for-netlify-action](https://github.com/JosephDuffy/wait-for-netlify-action) that uses the deployment for the commit, rather than for the PR. This fork fixes a couple issues retrieving the GitHub SHA being built, the deployment commit URL, and `max_timeout` setting.
+Do you have other Github actions (Lighthouse, Cypress, etc) that depend on the Netlify deploy URL? This action will wait until the deploy URL is available before running the next task.
 
 This action uses the Netlify API to always retrieve the correct deployment being built. You will need to generate a [Personal Access Token](https://app.netlify.com/user/applications/personal) to use and pass it as the `NETLIFY_TOKEN` environment variable.
 
@@ -16,7 +14,7 @@ This action uses the Netlify API to always retrieve the correct deployment being
 
 ### `site_id`
 
-**Required** The API ID of your site. See Settings > Site Details > General
+**Required** The API ID of your site. See Settings > Site Details > General in the Netlify UI
 
 ### `max_timeout`
 
@@ -27,10 +25,6 @@ Optional — The amount of time to spend waiting on the Netlify deployment to re
 ### `url`
 
 The Netlify deploy preview url that was deployed.
-
-### `site_id`
-
-The Netlify site ID that was deployed.
 
 ### `deploy_id`
 
@@ -50,6 +44,48 @@ steps:
     env:
       NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
 ```
+
+<details>
+<summary>Complete example with Cypress</summary>
+<br />
+
+```yaml
+name: Cypress
+on: push
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+
+    jobs:
+    cypress:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+
+        - name: Install modules
+          run: npm ci
+
+        - name: Wait for Netlify
+          uses: probablyup/wait-for-netlify-action@3.1.0
+          id: waitForDeployment
+          with:
+            site_id: '[your site ID here]'
+          env:
+            NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+
+        - name: Run Cypress
+          uses: cypress-io/github-action@v2
+          with:
+            record: true
+            config: baseUrl=${{ steps.waitForDeployment.outputs.url }}
+          env:
+            # pass the Dashboard record key as an environment variable
+            CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+            # this is automatically set by GitHub
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+</details>
 
 <details>
 <summary>Complete example with Lighthouse</summary>
@@ -92,3 +128,7 @@ jobs:
 ```
 
 </details>
+
+<small>
+This is a heavily-modified fork of [kamranayub/wait-for-netlify-action](https://github.com/JosephDuffy/wait-for-netlify-action).
+</small>
