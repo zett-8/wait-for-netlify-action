@@ -1,5 +1,5 @@
-name: "Wait for Netlify Deploy Preview Commit"
-description: "Wait for Netlify Deploy Preview to complete for commit"
+name: "Wait for Netlify Deploy Commit"
+description: "Wait for Netlify Deploy to complete for commit"
 branding:
   icon: "clock"
   color: "blue"
@@ -12,7 +12,7 @@ inputs:
     required: false
 outputs:
   url:
-    description: "The fully qualified deploy preview URL"
+    description: "The fully qualified deploy URL"
 runs:
   using: "node12"
   main: "index.js"
