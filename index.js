@@ -27,8 +27,9 @@ const waitForReadiness = (url, MAX_TIMEOUT) => {
       if (deploy.state === 'ready' || deploy.state === 'current') {
         clearInterval(handle);
         resolve();
-      } else if (deploy.state === 'building') console.log('Deployment not yet ready, waiting 30 seconds...');
-      else {
+      } else if (deploy.state === 'building') {
+        console.log('Deployment not yet ready, waiting 30 seconds...');
+      } else {
         clearInterval(handle);
         reject(`Netlify deployment not available with state: ${deploy.state}.`);
       }
@@ -43,7 +44,7 @@ const waitForUrl = async (url, MAX_TIMEOUT) => {
       await axios.get(url);
       return;
     } catch (e) {
-      console.log('Url unavailable, retrying...');
+      console.log(`URL ${url} unavailable, retrying...`);
       await new Promise((r) => setTimeout(r, 3000));
     }
   }
@@ -57,6 +58,7 @@ const run = async () => {
     const MAX_WAIT_TIMEOUT = 900; // 15 min
     const MAX_READY_TIMEOUT = Number(core.getInput('max_timeout')) || 60;
     const siteId = core.getInput('site_id');
+
     if (!netlifyToken) {
       core.setFailed('Please set NETLIFY_TOKEN env variable to your Netlify Personal Access Token secret');
     }
@@ -81,9 +83,10 @@ const run = async () => {
 
     const url = `https://${commitDeployment.id}--${commitDeployment.name}.netlify.app`;
 
-    core.setOutput('url', url);
     core.setOutput('deploy_id', commitDeployment.id);
+    core.setOutput('url', url);
 
+    console.log(`Waiting for Netlify deployment ${commitDeployment.id} to be ready`);
     await waitForReadiness(
       `https://api.netlify.com/api/v1/sites/${siteId}/deploys/${commitDeployment.id}`,
       MAX_WAIT_TIMEOUT
@@ -92,7 +95,7 @@ const run = async () => {
     console.log(`Waiting for a 200 from: ${url}`);
     await waitForUrl(url, MAX_READY_TIMEOUT);
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(typeof error === 'string' ? error : error.message);
   }
 };
 
