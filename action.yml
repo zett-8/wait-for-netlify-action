@@ -4,11 +4,11 @@ branding:
   icon: "clock"
   color: "blue"
 inputs:
-  site_name:
-    description: "The Netlify site name to test against"
+  site_id:
+    description: "The Netlify site id to test against"
     required: true
   max_timeout:
-    description: "The max time to run the action"
+    description: "The max time to wait after the deployment is ready for a valid HTTP status code"
     required: false
 outputs:
   url:

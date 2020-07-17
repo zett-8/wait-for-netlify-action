@@ -43,7 +43,7 @@ Basic Usage
 ```yaml
 steps:
   - name: Wait for Netlify Deploy
-    uses: probablyup/wait-for-netlify-action@3
+    uses: probablyup/wait-for-netlify-action@3.0.1
     id: waitForNetlifyDeploy
     with:
       site_id: 'YOUR_SITE_ID' # See Settings > Site Details > General in the Netlify UI
@@ -77,7 +77,7 @@ jobs:
         run: |
           npm run build
       - name: Waiting for 200 from Netlify
-        uses: probablyup/wait-for-netlify-action@3
+        uses: probablyup/wait-for-netlify-action@3.0.1
         id: waitForNetlifyDeploy
         with:
           site_id: 'YOUR_SITE_ID' # See Settings > Site Details > General in the Netlify UI

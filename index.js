@@ -10,11 +10,11 @@ function getNetlifyUrl(url) {
   });
 }
 
-const waitForReadiness = async (url, MAX_TIMEOUT) => {
+const waitForReadiness = (url, MAX_TIMEOUT) => {
   return new Promise((resolve, reject) => {
     let elapsedTimeSeconds = 0;
 
-    const handle = setInterval(() => {
+    const handle = setInterval(async () => {
       elapsedTimeSeconds += 30;
 
       if (elapsedTimeSeconds >= MAX_TIMEOUT) {
@@ -27,14 +27,13 @@ const waitForReadiness = async (url, MAX_TIMEOUT) => {
       if (deploy.state === 'ready' || deploy.state === 'current') {
         clearInterval(handle);
         resolve();
-      }
-      else if (deploy.state === 'building') console.log('Deployment not yet ready, waiting 30 seconds...');
+      } else if (deploy.state === 'building') console.log('Deployment not yet ready, waiting 30 seconds...');
       else {
         clearInterval(handle);
         reject(`Netlify deployment not available with state: ${deploy.state}.`);
       }
-    }, 30000)
-  })
+    }, 30000);
+  });
 };
 
 const waitForUrl = async (url, MAX_TIMEOUT) => {
@@ -85,7 +84,10 @@ const run = async () => {
     core.setOutput('url', url);
     core.setOutput('deploy_id', commitDeployment.id);
 
-    await waitForReadiness(`https://api.netlify.com/api/v1/sites/${siteId}/deploys/${commitDeployment.id}`, MAX_WAIT_TIMEOUT)
+    await waitForReadiness(
+      `https://api.netlify.com/api/v1/sites/${siteId}/deploys/${commitDeployment.id}`,
+      MAX_WAIT_TIMEOUT
+    );
 
     console.log(`Waiting for a 200 from: ${url}`);
     await waitForUrl(url, MAX_READY_TIMEOUT);
