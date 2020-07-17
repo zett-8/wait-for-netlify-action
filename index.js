@@ -2,6 +2,8 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const axios = require('axios');
 
+const READY_STATES = ['ready', 'current'];
+
 function getNetlifyUrl(url) {
   return axios.get(url, {
     headers: {
@@ -13,26 +15,27 @@ function getNetlifyUrl(url) {
 const waitForReadiness = (url, MAX_TIMEOUT) => {
   return new Promise((resolve, reject) => {
     let elapsedTimeSeconds = 0;
+    let state;
 
     const handle = setInterval(async () => {
       elapsedTimeSeconds += 30;
 
       if (elapsedTimeSeconds >= MAX_TIMEOUT) {
         clearInterval(handle);
-        return reject(`Timeout reached: Deployment was not ready within ${MAX_TIMEOUT} seconds.`);
+        return reject(
+          `Timeout reached: Deployment was not ready within ${MAX_TIMEOUT} seconds. Last known deployment state: ${state}.`
+        );
       }
 
-      const deploy = await getNetlifyUrl(url);
+      const { data: deploy } = await getNetlifyUrl(url);
+      state = deploy.state;
 
-      if (deploy.state === 'ready' || deploy.state === 'current') {
+      if (READY_STATES.includes(state)) {
         clearInterval(handle);
-        resolve();
-      } else if (deploy.state === 'building') {
-        console.log('Deployment not yet ready, waiting 30 seconds...');
-      } else {
-        clearInterval(handle);
-        reject(`Netlify deployment not available with state: ${deploy.state}.`);
+        return resolve();
       }
+
+      console.log('Not yet ready, waiting 30 more seconds...');
     }, 30000);
   });
 };
@@ -86,7 +89,7 @@ const run = async () => {
     core.setOutput('deploy_id', commitDeployment.id);
     core.setOutput('url', url);
 
-    console.log(`Waiting for Netlify deployment ${commitDeployment.id} to be ready`);
+    console.log(`Waiting for Netlify deployment ${commitDeployment.id} in site ${commitDeployment.name} to be ready`);
     await waitForReadiness(
       `https://api.netlify.com/api/v1/sites/${siteId}/deploys/${commitDeployment.id}`,
       MAX_WAIT_TIMEOUT
