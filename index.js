@@ -28,26 +28,19 @@ const run = async () => {
   try {
     const netlifyToken = process.env.NETLIFY_TOKEN;
     const commitSha = github.context.sha;
-    const MAX_TIMEOUT = Number(core.getInput('max_timeout')) || 60;
-    const siteName = core.getInput('site_name');
+    const MAX_TIMEOUT = Number(core.getInput('max_timeout')) || 300;
+    const siteId = core.getInput('site_id');
     if (!netlifyToken) {
       core.setFailed('Please set NETLIFY_TOKEN env variable to your Netlify Personal Access Token secret');
     }
     if (!commitSha) {
       core.setFailed('Could not determine GitHub commit');
     }
-    if (!siteName) {
-      core.setFailed('Required field `site_name` was not provided');
+    if (!siteId) {
+      core.setFailed('Required field `site_id` was not provided');
     }
 
-    const { data: netlifySites } = await getNetlifyUrl(`https://api.netlify.com/api/v1/sites?name=${siteName}`);
-    if (!netlifySites || netlifySites.length === 0) {
-      core.setFailed(`Could not find Netlify site with the name ${siteName}`);
-    }
-    const { site_id } = netlifySites[0];
-    core.setOutput('site_id', site_id);
-
-    const { data: netlifyDeployments } = await getNetlifyUrl(`https://api.netlify.com/api/v1/sites/${site_id}/deploys`);
+    const { data: netlifyDeployments } = await getNetlifyUrl(`https://api.netlify.com/api/v1/sites/${siteId}/deploys`);
 
     if (!netlifyDeployments) {
       core.setFailed(`Failed to get deployments for site`);
@@ -55,12 +48,12 @@ const run = async () => {
 
     // Most likely, it's the first entry in the response
     // but we correlate it just to be safe
-    const commitDeployment = netlifyDeployments.find(
-      (d) => d.commit_ref === commitSha && d.context === 'deploy-preview'
-    );
+    const commitDeployment = netlifyDeployments.find((d) => d.commit_ref === commitSha);
+
     if (!commitDeployment) {
       core.setFailed(`Could not find deployment for commit ${commitSha}`);
     }
+
     core.setOutput('deploy_id', commitDeployment.id);
 
     // At this point, we have enough info to where
@@ -70,7 +63,7 @@ const run = async () => {
     //
     // This could be enhanced to wait for the deployment status
     // and then wait once again for the URL to return 200.
-    const url = `https://${commitDeployment.id}--${siteName}.netlify.app`;
+    const url = `https://${commitDeployment.id}--${commitDeployment.name}.netlify.app`;
     core.setOutput('url', url);
     console.log(`Waiting for a 200 from: ${url}`);
     await waitForUrl(url, MAX_TIMEOUT);

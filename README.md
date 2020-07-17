@@ -14,13 +14,13 @@ This action uses the Netlify API to always retrieve the correct deployment being
 
 ## Inputs
 
-### `site_name`
+### `site_id`
 
-**Required** The name of the Netlify site to reach `https://{site_name}.netlify.com`
+**Required** The API ID of your site. See Settings > Site Details > General
 
 ### `max_timeout`
 
-Optional — The amount of time to spend waiting on Netlify. Defaults to `60` seconds
+Optional — The amount of time to spend waiting on Netlify. Defaults to `300` seconds (5 minutes)
 
 ## Outputs
 
@@ -42,14 +42,13 @@ Basic Usage
 
 ```yaml
 steps:
-  - name: Waiting for Netlify Preview
+  - name: Wait for Netlify Deploy
     uses: probablyup/wait-for-netlify-action@1
-    id: wait-for-netflify-preview
+    id: waitForNetlifyDeploy
     with:
-      site_name: 'YOUR_SITE_NAME'
-      max_timeout: 60
+      site_id: 'YOUR_SITE_ID' # See Settings > Site Details > General in the Netlify UI
     env:
-      NETLIFY_TOKEN: ${{secrets.NETLIFY_TOKEN}}
+      NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
 ```
 
 <details>
@@ -59,7 +58,7 @@ steps:
 ```yaml
 name: Lighthouse
 
-on: [pull_request]
+on: push
 
 jobs:
   build:
@@ -77,17 +76,17 @@ jobs:
       - name: Build
         run: |
           npm run build
-      - name: Waiting for 200 from the Netlify Preview
+      - name: Waiting for 200 from Netlify
         uses: probablyup/wait-for-netlify-action@1
-        id: wait-for-netflify-preview
+        id: waitForNetlifyDeploy
         with:
-          site_name: 'YOUR_SITE_NAME'
+          site_id: 'YOUR_SITE_ID' # See Settings > Site Details > General in the Netlify UI
         env:
-          NETLIFY_TOKEN: ${{secrets.NETLIFY_TOKEN}}
+          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
       - name: Lighthouse CI
         run: |
           npm install -g @lhci/cli@0.3.x
-          lhci autorun --upload.target=temporary-public-storage --collect.url=${{ steps.wait-for-netflify-preview.outputs.url }} || echo "LHCI failed!"
+          lhci autorun --upload.target=temporary-public-storage --collect.url=${{ steps.waitForNetlifyDeploy.outputs.url }} || echo "LHCI failed!"
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 ```
