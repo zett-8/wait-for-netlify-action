@@ -20,7 +20,7 @@ This action uses the Netlify API to always retrieve the correct deployment being
 
 ### `max_timeout`
 
-Optional — The amount of time to spend waiting on Netlify. Defaults to `300` seconds (5 minutes)
+Optional — The amount of time to spend waiting on the Netlify deployment to respond with a success HTTP code after reaching "ready" status. Defaults to 60 seconds.
 
 ## Outputs
 
