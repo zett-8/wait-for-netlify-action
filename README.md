@@ -130,5 +130,5 @@ jobs:
 </details>
 
 <small>
-This is a heavily-modified fork of [kamranayub/wait-for-netlify-action](https://github.com/JosephDuffy/wait-for-netlify-action).
+This is a heavily-modified fork of [kamranayub/wait-for-netlify-action](https://github.com/kamranayub/wait-for-netlify-action).
 </small>
