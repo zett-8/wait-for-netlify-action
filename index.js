@@ -12,13 +12,47 @@ function getNetlifyUrl(url) {
   });
 }
 
+const waitForDeployCreation = (url, commitSha, MAX_TIMEOUT) => {
+  const increment = 15;
+
+  return new Promise((resolve, reject) => {
+    let elapsedTimeSeconds = 0;
+
+    const handle = setInterval(async () => {
+      elapsedTimeSeconds += increment;
+
+      if (elapsedTimeSeconds >= MAX_TIMEOUT) {
+        clearInterval(handle);
+        return reject(`Timeout reached: Deployment was not created within ${MAX_TIMEOUT} seconds.`);
+      }
+
+      const { data: netlifyDeployments } = await getNetlifyUrl(url);
+
+      if (!netlifyDeployments) {
+        return reject(`Failed to get deployments for site`);
+      }
+
+      const commitDeployment = netlifyDeployments.find((d) => d.commit_ref === commitSha);
+
+      if (commitDeployment) {
+        clearInterval(handle);
+        return resolve(commitDeployment);
+      }
+
+      console.log(`Not yet created, waiting ${increment} more seconds...`);
+    }, increment * 1000);
+  });
+};
+
 const waitForReadiness = (url, MAX_TIMEOUT) => {
+  const increment = 30;
+
   return new Promise((resolve, reject) => {
     let elapsedTimeSeconds = 0;
     let state;
 
     const handle = setInterval(async () => {
-      elapsedTimeSeconds += 30;
+      elapsedTimeSeconds += increment;
 
       if (elapsedTimeSeconds >= MAX_TIMEOUT) {
         clearInterval(handle);
@@ -28,6 +62,7 @@ const waitForReadiness = (url, MAX_TIMEOUT) => {
       }
 
       const { data: deploy } = await getNetlifyUrl(url);
+
       state = deploy.state;
 
       if (READY_STATES.includes(state)) {
@@ -35,8 +70,8 @@ const waitForReadiness = (url, MAX_TIMEOUT) => {
         return resolve();
       }
 
-      console.log('Not yet ready, waiting 30 more seconds...');
-    }, 30000);
+      console.log(`Not yet ready, waiting ${increment} more seconds...`);
+    }, increment * 1000);
   });
 };
 
@@ -58,7 +93,8 @@ const run = async () => {
   try {
     const netlifyToken = process.env.NETLIFY_TOKEN;
     const commitSha = github.context.sha;
-    const MAX_WAIT_TIMEOUT = 900; // 15 min
+    const MAX_CREATE_TIMEOUT = 60 * 5; // 5 min
+    const MAX_WAIT_TIMEOUT = 60 * 15; // 15 min
     const MAX_READY_TIMEOUT = Number(core.getInput('max_timeout')) || 60;
     const siteId = core.getInput('site_id');
 
@@ -72,17 +108,12 @@ const run = async () => {
       core.setFailed('Required field `site_id` was not provided');
     }
 
-    const { data: netlifyDeployments } = await getNetlifyUrl(`https://api.netlify.com/api/v1/sites/${siteId}/deploys`);
-
-    if (!netlifyDeployments) {
-      core.setFailed(`Failed to get deployments for site`);
-    }
-
-    const commitDeployment = netlifyDeployments.find((d) => d.commit_ref === commitSha);
-
-    if (!commitDeployment) {
-      core.setFailed(`Could not find deployment for commit ${commitSha}`);
-    }
+    console.log(`Waiting for Netlify to create a deployment in site ${commitDeployment.name} for git SHA ${commitSha}`);
+    const commitDeployment = await waitForDeployCreation(
+      `https://api.netlify.com/api/v1/sites/${siteId}/deploys`,
+      commitSha,
+      MAX_CREATE_TIMEOUT
+    );
 
     const url = `https://${commitDeployment.id}--${commitDeployment.name}.netlify.app`;
 
