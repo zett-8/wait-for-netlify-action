@@ -108,7 +108,7 @@ const run = async () => {
       core.setFailed('Required field `site_id` was not provided');
     }
 
-    console.log(`Waiting for Netlify to create a deployment in site ${commitDeployment.name} for git SHA ${commitSha}`);
+    console.log(`Waiting for Netlify to create a deployment for git SHA ${commitSha}`);
     const commitDeployment = await waitForDeployCreation(
       `https://api.netlify.com/api/v1/sites/${siteId}/deploys`,
       commitSha,
