@@ -37,7 +37,7 @@ Basic Usage
 ```yaml
 steps:
   - name: Wait for Netlify Deploy
-    uses: probablyup/wait-for-netlify-action@3.1.3
+    uses: probablyup/wait-for-netlify-action@3.2.0
     id: waitForNetlifyDeploy
     with:
       site_id: 'YOUR_SITE_ID' # See Settings > Site Details > General in the Netlify UI
@@ -51,7 +51,7 @@ steps:
 
 ```yaml
 name: Cypress
-on: push
+on: pull_request
 jobs:
   integration:
     runs-on: ubuntu-latest
@@ -66,7 +66,7 @@ jobs:
           run: npm ci
 
         - name: Wait for Netlify
-          uses: probablyup/wait-for-netlify-action@3.1.3
+          uses: probablyup/wait-for-netlify-action@3.2.0
           id: waitForDeployment
           with:
             site_id: '[your site ID here]'
@@ -94,7 +94,7 @@ jobs:
 ```yaml
 name: Lighthouse
 
-on: push
+on: pull_request
 
 jobs:
   build:
@@ -113,7 +113,7 @@ jobs:
         run: |
           npm run build
       - name: Waiting for 200 from Netlify
-        uses: probablyup/wait-for-netlify-action@3.1.3
+        uses: probablyup/wait-for-netlify-action@3.2.0
         id: waitForNetlifyDeploy
         with:
           site_id: 'YOUR_SITE_ID' # See Settings > Site Details > General in the Netlify UI

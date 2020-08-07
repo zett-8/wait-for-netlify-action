@@ -99,13 +99,6 @@ const run = async () => {
     const MAX_READY_TIMEOUT = Number(core.getInput('max_timeout')) || 60;
     const siteId = core.getInput('site_id');
 
-    console.log('context sha', github.context.sha);
-
-    if (github.context.eventName === 'pull_request') {
-      console.log('pull request base sha', github.context.payload.pull_request.base.sha);
-      console.log('pull request head sha', github.context.payload.pull_request.head.sha);
-    }
-
     if (!netlifyToken) {
       core.setFailed('Please set NETLIFY_TOKEN env variable to your Netlify Personal Access Token secret');
     }
