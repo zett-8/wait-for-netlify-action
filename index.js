@@ -92,11 +92,19 @@ const waitForUrl = async (url, MAX_TIMEOUT) => {
 const run = async () => {
   try {
     const netlifyToken = process.env.NETLIFY_TOKEN;
-    const commitSha = github.context.sha;
+    const commitSha =
+      github.context.eventName === 'pull_request' ? github.context.payload.pull_request.head.sha : github.context.sha;
     const MAX_CREATE_TIMEOUT = 60 * 5; // 5 min
     const MAX_WAIT_TIMEOUT = 60 * 15; // 15 min
     const MAX_READY_TIMEOUT = Number(core.getInput('max_timeout')) || 60;
     const siteId = core.getInput('site_id');
+
+    console.log('context sha', github.context.sha);
+
+    if (github.context.eventName === 'pull_request') {
+      console.log('pull request base sha', github.context.payload.pull_request.base.sha);
+      console.log('pull request head sha', github.context.payload.pull_request.head.sha);
+    }
 
     if (!netlifyToken) {
       core.setFailed('Please set NETLIFY_TOKEN env variable to your Netlify Personal Access Token secret');
