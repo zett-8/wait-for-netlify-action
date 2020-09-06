@@ -38,7 +38,7 @@ Basic Usage
 steps:
   - name: Wait for Netlify Deploy
     uses: probablyup/wait-for-netlify-action@3.2.0
-    id: waitForNetlifyDeploy
+    id: waitForDeployment
     with:
       site_id: 'YOUR_SITE_ID' # See Settings > Site Details > General in the Netlify UI
     env:
