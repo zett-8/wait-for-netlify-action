@@ -43,6 +43,9 @@ steps:
       site_id: 'YOUR_SITE_ID' # See Settings > Site Details > General in the Netlify UI
     env:
       NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+      
+# Then use it in a later step like:
+# ${{ steps.waitForDeployment.outputs.url }}
 ```
 
 <details>
