@@ -10,6 +10,9 @@ inputs:
   max_timeout:
     description: "The max time to wait after the deployment is ready for a valid HTTP status code."
     required: false
+  context:
+    description: "The Netlify deploy context. Can be branch-deploy, production or deploy-preview."
+    required: false
 outputs:
   deploy_id:
     description: "The Netlify deployment ID"
