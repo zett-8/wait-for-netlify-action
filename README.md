@@ -20,6 +20,10 @@ This action uses the Netlify API to always retrieve the correct deployment being
 
 Optional — The amount of time to spend waiting on the Netlify deployment to respond with a success HTTP code after reaching "ready" status. Defaults to 60 seconds.
 
+### `context`
+
+Optional — The Netlify deploy context. Can be `branch-deploy`, `production` or `deploy-preview`. Defaults to all of them.
+
 ## Outputs
 
 ### `url`
@@ -43,7 +47,7 @@ steps:
       site_id: 'YOUR_SITE_ID' # See Settings > Site Details > General in the Netlify UI
     env:
       NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
-      
+
 # Then use it in a later step like:
 # ${{ steps.waitForDeployment.outputs.url }}
 ```
