@@ -79,10 +79,11 @@ const waitForReadiness = (url, MAX_TIMEOUT) => {
 
 const waitForUrl = async (url, MAX_TIMEOUT) => {
   const iterations = MAX_TIMEOUT / 3
+  const requestHeaders = JSON.parse(core.getInput('request_headers'))
+  const config = requestHeaders ? { headers: requestHeaders } : {}
+
   for (let i = 0; i < iterations; i++) {
     try {
-      const requestHeaders = JSON.parse(core.getInput('request_headers'))
-      const config = requestHeaders ? { headers: requestHeaders } : {}
       await axios.get(url, config)
       return
     } catch (e) {
