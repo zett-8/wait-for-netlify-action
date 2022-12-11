@@ -24,6 +24,10 @@ Optional — The amount of time to spend waiting on the Netlify deployment to re
 
 Optional — The Netlify deploy context. Can be `branch-deploy`, `production` or `deploy-preview`. Defaults to all of them.
 
+### `request_headers`
+
+Optional - Additional headers to send with the request. Will be used when to check deployed URL. Defaults to `{}`.
+
 ## Outputs
 
 ### `url`
