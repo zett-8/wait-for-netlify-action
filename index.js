@@ -81,7 +81,9 @@ const waitForUrl = async (url, MAX_TIMEOUT) => {
   const iterations = MAX_TIMEOUT / 3
   for (let i = 0; i < iterations; i++) {
     try {
-      await axios.get(url)
+      const requestHeaders = JSON.parse(core.getInput('request_headers'))
+      const config = requestHeaders ? { headers: requestHeaders } : {}
+      await axios.get(url, config)
       return
     } catch (e) {
       console.log(`URL ${url} unavailable, retrying...`)

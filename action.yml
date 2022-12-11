@@ -13,6 +13,9 @@ inputs:
   context:
     description: "The Netlify deploy context. Can be branch-deploy, production or deploy-preview."
     required: false
+  request_headers:
+    description: "The request headers to use when checking the Netlify deploy status."
+    required: false
 outputs:
   deploy_id:
     description: "The Netlify deployment ID"
