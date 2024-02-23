@@ -23,4 +23,8 @@ outputs:
     description: "The fully qualified deployment URL"
 runs:
   using: "node16"
+<<<<<<< HEAD
   main: "dist/index.js"
+=======
+  main: "index.js"
+>>>>>>> cbf0a098c3c7a0363234cf7b8979a7c4c0ea7a2c
